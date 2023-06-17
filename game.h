@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <time.h>
+#include <cstring>
 
 using namespace std;
 
@@ -25,6 +26,7 @@ public:
     char missionG = ' ';
     char missionP = ' ';
     char missionUG = ' ';
+    string reason = "";
 
     bool missionCompleted = false;
 
@@ -152,8 +154,81 @@ public:
                 gateTimer = 0;
                 generateGate();
             }
+            if (missionCompleted)
+            {
+                while (1)
+                {
+                    wclear(score);
+                    box(score, 0, 0);
+                    mvwprintw(score, 3, 2, "Press \'P\' to next stage.");
+                    mvwprintw(score, 4, 2, "Press \'E\' to exit.");
+                    wrefresh(score);
+                    char key = getch();
+                    if (key == 'e')
+                        endwin();
+                    if (key == 'p')
+                    {
+                        missionCompleted = false;
+                        map = Map(21, 41, rand() % 4 + 2);
+                        activeTick = 0;
+                        grow = 0;
+                        poison = 0;
+                        usedGate = 0;
+
+                        missionS = ' ';
+                        missionG = ' ';
+                        missionP = ' ';
+                        missionUG = ' ';
+                        generateItems();
+                        generateGate();
+                        break;
+                    }
+                    usleep(1000 * 100);
+                }
+            }
             if (!update(gtimer, ptimer, prev))
-                break;
+            {
+                while (1)
+                {
+                    map.head.move();
+                    wclear(score);
+                    box(score, 0, 0);
+                    const char *_reason = reason.c_str();
+                    mvwprintw(score, 3, 2, _reason);
+                    mvwprintw(score, 4, 2, "Press \'P\' to continue.");
+                    mvwprintw(score, 5, 2, "Press \'E\' to exit");
+                    wrefresh(score);
+                    char key = getch();
+                    if (key == 'e')
+                    {
+                        endwin();
+                        return;
+                    }
+                    if (key == 'p')
+                    {
+                        map.head = SnakeHead(map.size.h / 2, map.size.w / 2);
+                        map.head.body.clear();
+                        map.head.body.push_back(SnakeBody(map.size.h / 2 + 1, map.size.w / 2));
+                        map.head.body.push_back(SnakeBody(map.size.h / 2 + 2, map.size.w / 2));
+                        map.head.body.push_back(SnakeBody(map.size.h / 2 + 3, map.size.w / 2));
+                        missionCompleted = false;
+                        activeTick = 0;
+                        grow = 0;
+                        poison = 0;
+                        usedGate = 0;
+
+                        missionS = ' ';
+                        missionG = ' ';
+                        missionP = ' ';
+                        missionUG = ' ';
+                        generateItems();
+                        generateGate();
+                        break;
+                    }
+                    usleep(1000 * 100);
+                }
+            }
+
             usleep(1000 * 200);
         }
     }
@@ -161,19 +236,31 @@ public:
     bool isValid(int prev = 0)
     {
         if (prev == 5)
+        {
+            reason = "Tried moving in the opposite direction.";
             return false;
+        }
         for (auto it = map.wall.begin(); it != map.wall.end(); it++)
         {
             if (it->coord == map.head.coord)
+            {
+                reason = "Collided with the wall.";
                 return false;
+            }
         }
         for (auto it = map.head.body.begin(); it != map.head.body.end(); it++)
         {
             if (it->coord == map.head.coord)
+            {
+                reason = "Collided with the body.";
                 return false;
+            }
         }
         if (map.head.body.size() < 3)
+        {
+            reason = "Length is less than 3.";
             return false;
+        }
         return true;
     }
 
@@ -358,27 +445,29 @@ public:
                     }
                     for (auto w = map.wall.begin(); w != map.wall.end(); w++)
                     {
-                        if(w->coord == toGo){
+                        if (w->coord == toGo)
+                        {
                             canGo = false;
                             break;
                         }
                     }
-                    if(!canGo){
-                        switch (map.head.direction)
+                    if (!canGo)
                     {
-                    case 1:
-                        map.head.direction = 3;
-                        break;
-                    case 2:
-                        map.head.direction = 1;
-                        break;
-                    case 3:
-                        map.head.direction = 4;
-                        break;
-                    case 4:
-                        map.head.direction = 2;
-                        break;
-                    }
+                        switch (map.head.direction)
+                        {
+                        case 1:
+                            map.head.direction = 3;
+                            break;
+                        case 2:
+                            map.head.direction = 1;
+                            break;
+                        case 3:
+                            map.head.direction = 4;
+                            break;
+                        case 4:
+                            map.head.direction = 2;
+                            break;
+                        }
                     }
                 }
                 else
