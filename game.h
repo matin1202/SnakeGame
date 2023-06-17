@@ -21,6 +21,9 @@ public:
     int grow = 0;
     int poison = 0;
     int usedGate = 0;
+    int maxSize = 3;
+    int timer = 0;
+    int tick = 200;
 
     char missionS = ' ';
     char missionG = ' ';
@@ -28,7 +31,7 @@ public:
     char missionUG = ' ';
     string reason = "";
 
-    bool missionCompleted = false;
+    bool missionCompleted = true;
 
     Game()
     {
@@ -59,24 +62,30 @@ public:
     void refreshScreen()
     {
         int gtimer = 0, ptimer = 0, gateTimer = 0;
+        bool isStart = false;
         while (1)
         {
-            gtimer++;
-            ptimer++;
-            gateTimer++;
+            if (isStart)
+            {
+                gtimer++;
+                ptimer++;
+                gateTimer++;
+                timer++;
+            }
             clear();
             WINDOW *board = newwin(map.size.h + 2, map.size.w + 2, 0, 0);
-            WINDOW *score = newwin(8, 27, 0, map.size.w + 4);
-            WINDOW *mission = newwin(8, 27, 9, map.size.w + 4);
+            WINDOW *score = newwin(9, 27, 0, map.size.w + 4);
+            WINDOW *mission = newwin(9, 27, 10, map.size.w + 4);
             box(board, 0, 0);
             box(score, 0, 0);
             box(mission, 0, 0);
 
             mvwprintw(score, 1, 1, "*******Score Board*******");
-            mvwprintw(score, 3, 1, " score: %d", map.head.body.size() - 3);
+            mvwprintw(score, 3, 1, " B: %d/%d", map.head.body.size(), maxSize);
             mvwprintw(score, 4, 1, " grow: %d", grow);
             mvwprintw(score, 5, 1, " poison: %d", poison);
             mvwprintw(score, 6, 1, " Used Gate: %d", usedGate);
+            mvwprintw(score, 7, 1, " time: %d", timer / (1000 / tick));
 
             mvwprintw(mission, 1, 1, "******Mission Board******");
             mvwprintw(mission, 3, 1, " score: 4 / %d (%c) ", map.head.body.size() - 3, missionS);
@@ -124,19 +133,24 @@ public:
             wrefresh(mission);
             int key = getch();
             int prev = map.head.direction;
+
             switch (key)
             {
             case KEY_UP:
                 map.head.direction = 1;
+                isStart = true;
                 break;
             case KEY_DOWN:
                 map.head.direction = 4;
+                isStart = true;
                 break;
             case KEY_RIGHT:
                 map.head.direction = 3;
+                isStart = true;
                 break;
             case KEY_LEFT:
                 map.head.direction = 2;
+                isStart = true;
                 break;
             }
             if (gtimer >= 50)
@@ -174,6 +188,9 @@ public:
                         grow = 0;
                         poison = 0;
                         usedGate = 0;
+                        maxSize = 3;
+                        timer = 0;
+                        isStart = false;
 
                         missionS = ' ';
                         missionG = ' ';
@@ -181,6 +198,7 @@ public:
                         missionUG = ' ';
                         generateItems();
                         generateGate();
+                        tick = ((rand() % 25) + 5) * 10;
                         break;
                     }
                     usleep(1000 * 100);
@@ -216,6 +234,9 @@ public:
                         grow = 0;
                         poison = 0;
                         usedGate = 0;
+                        maxSize = 0;
+                        timer = 0;
+                        isStart = false;
 
                         missionS = ' ';
                         missionG = ' ';
@@ -229,7 +250,7 @@ public:
                 }
             }
 
-            usleep(1000 * 200);
+            usleep(1000 * tick);
         }
     }
 
@@ -519,6 +540,8 @@ public:
         {
             missionCompleted = true;
         }
+        if (map.head.body.size() > maxSize)
+            maxSize = map.head.body.size();
 
         return isValid(prev);
     }
