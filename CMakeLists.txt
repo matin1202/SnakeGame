@@ -6,7 +6,7 @@ find_package(Curses REQUIRED)
 include_directories(${CURSES_INCLUDE_DIR})
 
 set(SOURCES
-    ./main.cpp
+    src/main.cpp
 )
 
 add_executable(SnakeGame ${SOURCES})

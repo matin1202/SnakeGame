@@ -33,7 +33,7 @@ public:
     char missionUG = ' ';
     string reason = "";
 
-    bool missionCompleted = true;
+    bool missionCompleted = false;
 
     Game()
     {
@@ -270,7 +270,7 @@ public:
                 }
             }
 
-            usleep(1000 * ((float)tick/multipler));
+            usleep(1000 * ((float)tick / multipler));
         }
     }
 
@@ -497,7 +497,52 @@ public:
                             break;
                         }
                     }
-                    if (!canGo)
+                    int possible = 4;
+                    int dir = -1;
+                    for (int i = 0; i < 4; i++)
+                    {
+                        Coord tmp = other->coord;
+                        switch (i)
+                        {
+                        case 0:
+                            tmp.x--;
+                            break;
+                        case 1:
+                            tmp.x++;
+                            break;
+                        case 2:
+                            tmp.y--;
+                            break;
+                        case 3:
+                            tmp.y++;
+                            break;
+                        }
+                        int t = possible;
+                        for (auto it = map.wall.begin(); it != map.wall.end(); it++)
+                        {
+                            if (tmp == it->coord)
+                                possible--;
+                        }
+                        if (possible == t)
+                        {
+                            switch (i)
+                            {
+                            case 0:
+                                dir = 1;
+                                break;
+                            case 1:
+                                dir = 2;
+                                break;
+                            case 2:
+                                dir = 3;
+                                break;
+                            case 3:
+                                dir = 4;
+                                break;
+                            }
+                        }
+                    }
+                    if (!canGo && possible != 1)
                     {
                         switch (map.head.direction)
                         {
@@ -514,6 +559,10 @@ public:
                             map.head.direction = 2;
                             break;
                         }
+                    }
+                    if (!canGo && possible == 1)
+                    {
+                        map.head.direction = dir;
                     }
                 }
                 else
