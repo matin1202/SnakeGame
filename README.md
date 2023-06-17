@@ -120,3 +120,7 @@ C++ 프로그래밍 언어로 ncurses 라이브러리를 사용하여 Snake Game
  2. `game.h` : 게임의 진행을 담당한다.
  3. `map.h` : 맵의 저장 및 시작을 담당한다.
  4. `block.h` : 여러 블럭들의 class를 담당한다.
+
+ ### 게임 화면
+![](/img/ingame.png)
+[![Snake Game 플레이 영상](/img/ingame_mkv.png)](/img/ingame.mkv)

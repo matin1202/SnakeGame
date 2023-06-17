@@ -92,7 +92,7 @@ public:
             mvwprintw(score, 7, 1, " time: %d", timer / (1000 / tick));
 
             mvwprintw(mission, 1, 1, "******Mission Board******");
-            mvwprintw(mission, 3, 1, " B: 4 / %d (%c) ", map.head.body.size(), missionS);
+            mvwprintw(mission, 3, 1, " B: 7 / %d (%c) ", map.head.body.size(), missionS);
             mvwprintw(mission, 4, 1, " +: 5 / %d (%c) ", grow, missionG);
             mvwprintw(mission, 5, 1, " -: 2 / %d (%c) ", poison, missionP);
             mvwprintw(mission, 6, 1, " G: 1 / %d (%c) ", usedGate, missionUG);
@@ -599,7 +599,7 @@ public:
         }
 
         // mission
-        if ((map.head.body.size() - 3) >= 4)
+        if (map.head.body.size() >= 7)
             missionS = 'v';
         else
             missionS = ' ';
@@ -617,7 +617,7 @@ public:
             missionUG = ' ';
 
         // missionComplted
-        if ((map.head.body.size() - 3) >= 4 && grow >= 5 && poison >= 2 && usedGate >= 1)
+        if (map.head.body.size() >= 7 && grow >= 5 && poison >= 2 && usedGate >= 1)
         {
             missionCompleted = true;
         }
