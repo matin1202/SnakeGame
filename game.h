@@ -56,12 +56,24 @@ public:
             gateTimer++;
             clear();
             WINDOW *board = newwin(map.size.h + 2, map.size.w + 2, 0, 0);
-            WINDOW *score = newwin(8, 15, 0, map.size.w + 4);
+            WINDOW *score = newwin(8, 27, 0, map.size.w + 4);
+            WINDOW *mission = newwin(8, 27, 9, map.size.w + 4);
             box(board, 0, 0);
             box(score, 0, 0);
-            mvwprintw(score, 1, 1, "grow: %d", grow);
-            mvwprintw(score, 2, 1, "poison: %d", poison);
-            mvwprintw(score, 3, 1, "Used Gate: %d", usedGate);
+            box(mission, 0, 0);
+            
+            mvwprintw(score, 1, 1, "*******Score Board*******");
+            mvwprintw(score, 3, 1, " score: %d", map.head.body.size() - 3);
+            mvwprintw(score, 4, 1, " grow: %d", grow);
+            mvwprintw(score, 5, 1, " poison: %d", poison);
+            mvwprintw(score, 6, 1, " Used Gate: %d", usedGate);
+            
+            mvwprintw(mission, 1, 1, "******Mission Board******");
+            mvwprintw(mission, 3, 1, " score: %d ", map.head.body.size() - 3);
+            mvwprintw(mission, 4, 1, " grow: %d ", grow);
+            mvwprintw(mission, 5, 1, " poison: %d ", poison);
+            mvwprintw(mission, 6, 1, " Used Gate: %d ", usedGate);
+            
             for (auto it = map.iWall.begin(); it != map.iWall.end(); it++)
             {
                 wattron(board, COLOR_PAIR(2));
@@ -99,6 +111,7 @@ public:
             refresh();
             wrefresh(board);
             wrefresh(score);
+            wrefresh(mission);
             int key = getch();
             int prev = map.head.direction;
             switch (key)
