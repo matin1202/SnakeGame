@@ -123,4 +123,4 @@ C++ 프로그래밍 언어로 ncurses 라이브러리를 사용하여 Snake Game
 
  ### 게임 화면
 ![](/img/ingame.png)
-[![Snake Game 플레이 영상](/img/ingame_mkv.png)](/img/ingame.mkv)
+[![Snake Game 플레이 영상](/img/ingame_mkv.png)](https://youtu.be/PJw4IkInMMU)
