@@ -24,6 +24,8 @@ public:
     int maxSize = 3;
     int timer = 0;
     int tick = 200;
+    float multipler = 1;
+    int multi_timer = 0;
 
     char missionS = ' ';
     char missionG = ' ';
@@ -49,6 +51,7 @@ public:
         init_pair(5, COLOR_BLUE, COLOR_BLUE);     // Growth Item
         init_pair(6, COLOR_RED, COLOR_RED);       // Poison Item
         init_pair(7, COLOR_BLACK, COLOR_MAGENTA); // GATE
+        init_pair(8, COLOR_YELLOW, COLOR_YELLOW);
         keypad(stdscr, TRUE);
         nodelay(stdscr, TRUE);
         srand((unsigned int)time(NULL));
@@ -61,7 +64,7 @@ public:
 
     void refreshScreen()
     {
-        int gtimer = 0, ptimer = 0, gateTimer = 0;
+        int gtimer = 0, ptimer = 0, gateTimer = 0, ttimer = 0;
         bool isStart = false;
         while (1)
         {
@@ -70,6 +73,7 @@ public:
                 gtimer++;
                 ptimer++;
                 gateTimer++;
+                ttimer++;
                 timer++;
             }
             clear();
@@ -82,16 +86,16 @@ public:
 
             mvwprintw(score, 1, 1, "*******Score Board*******");
             mvwprintw(score, 3, 1, " B: %d/%d", map.head.body.size(), maxSize);
-            mvwprintw(score, 4, 1, " grow: %d", grow);
-            mvwprintw(score, 5, 1, " poison: %d", poison);
-            mvwprintw(score, 6, 1, " Used Gate: %d", usedGate);
+            mvwprintw(score, 4, 1, " +: %d", grow);
+            mvwprintw(score, 5, 1, " -: %d", poison);
+            mvwprintw(score, 6, 1, " G: %d", usedGate);
             mvwprintw(score, 7, 1, " time: %d", timer / (1000 / tick));
 
             mvwprintw(mission, 1, 1, "******Mission Board******");
-            mvwprintw(mission, 3, 1, " score: 4 / %d (%c) ", map.head.body.size() - 3, missionS);
-            mvwprintw(mission, 4, 1, " grow: 5 / %d (%c) ", grow, missionG);
-            mvwprintw(mission, 5, 1, " poison: 2 / %d (%c) ", poison, missionP);
-            mvwprintw(mission, 6, 1, " Used Gate: 1 / %d (%c) ", usedGate, missionUG);
+            mvwprintw(mission, 3, 1, " B: 4 / %d (%c) ", map.head.body.size(), missionS);
+            mvwprintw(mission, 4, 1, " +: 5 / %d (%c) ", grow, missionG);
+            mvwprintw(mission, 5, 1, " -: 2 / %d (%c) ", poison, missionP);
+            mvwprintw(mission, 6, 1, " G: 1 / %d (%c) ", usedGate, missionUG);
 
             for (auto it = map.iWall.begin(); it != map.iWall.end(); it++)
             {
@@ -126,6 +130,9 @@ public:
             wattron(board, COLOR_PAIR(6));
             mvwaddch(board, map.pItem.coord.x, map.pItem.coord.y, ' ');
             wattroff(board, COLOR_PAIR(6));
+            wattron(board, COLOR_PAIR(8));
+            mvwaddch(board, map.tItem.coord.x, map.tItem.coord.y, ' ');
+            wattroff(board, COLOR_PAIR(8));
 
             refresh();
             wrefresh(board);
@@ -163,6 +170,17 @@ public:
                 ptimer = 0;
                 generatePItem();
             }
+            if (ttimer >= 30)
+            {
+                ttimer = 0;
+                generateTItem();
+            }
+            if (multi_timer != 0)
+            {
+                multi_timer--;
+            }
+            if (multi_timer == 0)
+                multipler = 1;
             if (gateTimer >= 80 && !(map.gate[0].isActive || map.gate[1].isActive))
             {
                 gateTimer = 0;
@@ -191,6 +209,7 @@ public:
                         maxSize = 3;
                         timer = 0;
                         isStart = false;
+                        multipler = 1;
 
                         missionS = ' ';
                         missionG = ' ';
@@ -204,7 +223,7 @@ public:
                     usleep(1000 * 100);
                 }
             }
-            if (!update(gtimer, ptimer, prev))
+            if (!update(gtimer, ptimer, ttimer, prev))
             {
                 while (1)
                 {
@@ -237,6 +256,7 @@ public:
                         maxSize = 0;
                         timer = 0;
                         isStart = false;
+                        multipler = 1;
 
                         missionS = ' ';
                         missionG = ' ';
@@ -250,7 +270,7 @@ public:
                 }
             }
 
-            usleep(1000 * tick);
+            usleep(1000 * ((float)tick/multipler));
         }
     }
 
@@ -401,11 +421,16 @@ public:
 
     void generateItems()
     {
+        generateGItem();
+        generatePItem();
+        generateTItem();
+    }
+
+    void generateTItem()
+    {
         int x, y;
         generateRandCoord(x, y);
-        map.pItem = PoisonItem(x, y);
-        generateRandCoord(x, y);
-        map.gItem = GrowthItem(x, y);
+        map.tItem = TimeItem(x, y);
     }
 
     void generateGItem()
@@ -422,7 +447,7 @@ public:
         map.pItem = PoisonItem(x, y);
     }
 
-    bool update(int &gtimer, int &ptimer, int prev = 0)
+    bool update(int &gtimer, int &ptimer, int &ttimer, int prev = 0)
     {
         if (activeTick == 0)
         {
@@ -515,6 +540,13 @@ public:
             generatePItem();
             ptimer = 0;
             map.head.body.pop_back();
+        }
+        if (map.head.coord == map.tItem.coord)
+        {
+            generateTItem();
+            ttimer = 0;
+            multipler = 1.5;
+            multi_timer = 40;
         }
 
         // mission

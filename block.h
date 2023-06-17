@@ -86,6 +86,18 @@ public:
     int showIdentity() { return identity; }
 };
 
+class TimeItem : public Block
+{
+public:
+    TimeItem() : Block() {}
+    TimeItem(int x, int y) : Block(x, y) { identity = 6; }
+    TimeItem(const TimeItem &titem)
+    {
+        coord = titem.coord;
+    }
+    int showIdentity() { return identity; }
+};
+
 class Gate : public Block
 {
 public:

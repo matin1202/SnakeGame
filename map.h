@@ -23,6 +23,7 @@ public:
     vector<Gate> gate = vector<Gate>(2);
     GrowthItem gItem;
     PoisonItem pItem;
+    TimeItem tItem;
     Map(int h = 21, int w = 21, int wallCount = 0);
     Map(const Map &m);
 
@@ -112,6 +113,7 @@ Map::Map(const Map &m)
     gate = m.gate;
     gItem = m.gItem;
     pItem = m.pItem;
+    tItem = m.tItem;
 }
 
 void Map::print_map()

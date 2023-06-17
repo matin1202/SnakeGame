@@ -13,7 +13,7 @@ int main(){
         raw();
         keypad(stdscr, TRUE);
         noecho();
-        curs_set(0);
+        curs_set(0); 
         mvprintw(12, 29, "SNAKE GAME");
         mvprintw(15, 34, "Play : Press \'p\'");
         mvprintw(16, 34, "Exit : Press \'e\'");
