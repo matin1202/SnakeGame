@@ -20,6 +20,14 @@ public:
     int grow = 0;
     int poison = 0;
     int usedGate = 0;
+    
+    char missionS = ' ';
+    char missionG = ' ';
+    char missionP = ' ';
+    char missionUG = ' ';
+    
+    bool missionCompleted = false;
+    
     Game()
     {
         map = Map(21, 41);
@@ -69,10 +77,10 @@ public:
             mvwprintw(score, 6, 1, " Used Gate: %d", usedGate);
             
             mvwprintw(mission, 1, 1, "******Mission Board******");
-            mvwprintw(mission, 3, 1, " score: %d ", map.head.body.size() - 3);
-            mvwprintw(mission, 4, 1, " grow: %d ", grow);
-            mvwprintw(mission, 5, 1, " poison: %d ", poison);
-            mvwprintw(mission, 6, 1, " Used Gate: %d ", usedGate);
+            mvwprintw(mission, 3, 1, " score: 4 / %d (%c) ", map.head.body.size() -3, missionS);
+            mvwprintw(mission, 4, 1, " grow: 5 / %d (%c) ", grow, missionG);
+            mvwprintw(mission, 5, 1, " poison: 2 / %d (%c) ", poison, missionP);
+            mvwprintw(mission, 6, 1, " Used Gate: 1 / %d (%c) ", usedGate, missionUG);
             
             for (auto it = map.iWall.begin(); it != map.iWall.end(); it++)
             {
@@ -295,6 +303,30 @@ public:
             generatePItem();
             ptimer = 0;
             map.head.body.pop_back();
+        }
+        
+        // mission
+        if ((map.head.body.size() - 3) >= 4)
+            missionS = 'v';
+        else
+            missionS = ' ';
+        if (grow >= 5)
+            missionG = 'v';
+        else
+            missionS = ' ';
+        if (poison >= 2)
+            missionP = 'v';
+        else
+            missionS = ' ';
+        if (usedGate >= 1)
+            missionUG = 'v';
+        else
+            missionUG = ' ';
+        
+        // missionComplted
+        if ((map.head.body.size() - 3) >= 4 && grow >= 5 && poison >= 2 && usedGate >= 1)
+        {
+            missionCompleted = true;
         }
 
         return isValid(prev);
