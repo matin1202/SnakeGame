@@ -1,82 +1,81 @@
-#include <ncurses.h>                                                                    
-                                                                                        
-                                                                                        
-WINDOW *create_newwin(int height, int width, int starty, int startx);                   
-void destroy_win(WINDOW *local_win);                                                    
-                                                                                        
-int main(int argc, char *argv[])                                                        
-{       WINDOW *my_win;                                                                 
-        int startx, starty, width, height;                                              
-        int ch;                                                                         
-                                                                                        
-        initscr();                      /* Start curses mode            */              
-        cbreak();                       /* Line buffering disabled, Pass on             
-                                         * everty thing to me           */              
-        keypad(stdscr, TRUE);           /* I need that nifty F1         */              
-                                                                                        
-        height = 3;                                                                     
-        width = 10;                                                                     
-        starty = (LINES - height) / 2;  /* Calculating for a center placement */        
-        startx = (COLS - width) / 2;    /* of the window                */              
-        printw("Press F1 to exit");                                                     
-        refresh();                                                                      
-        my_win = create_newwin(height, width, starty, startx);                          
-                                                                                        
-        while((ch = getch()) != KEY_F(1))                                               
-        {       switch(ch)                                                              
-                {       case KEY_LEFT:                                                  
-                                destroy_win(my_win);                                    
-                                my_win = create_newwin(height, width, starty,--startx); 
-                                break;                                                  
-                        case KEY_RIGHT:                                                 
-                                destroy_win(my_win);                                    
-                                my_win = create_newwin(height, width, starty,++startx); 
-                                break;                                                  
-                        case KEY_UP:                                                    
-                                destroy_win(my_win);                                    
-                                my_win = create_newwin(height, width, --starty,startx); 
-                                break;                                                  
-                        case KEY_DOWN:                                                  
-                                destroy_win(my_win);                                    
-                                my_win = create_newwin(height, width, ++starty,startx); 
-                                break;                                                  
-                }                                                                       
-        }                                                                               
-                                                                                        
-        endwin();                       /* End curses mode                */            
-        return 0;                                                                       
-}                                                                                       
-                                                                                        
-WINDOW *create_newwin(int height, int width, int starty, int startx)                    
-{       WINDOW *local_win;                                                              
-                                                                                        
-        local_win = newwin(height, width, starty, startx);                              
-        box(local_win, 0 , 0);          /* 0, 0 gives default characters                
-                                         * for the vertical and horizontal              
-                                         * lines                        */              
-        wrefresh(local_win);            /* Show that box                */              
-                                                                                        
-        return local_win;                                                               
-}                                                                                       
-                                                                                        
-void destroy_win(WINDOW *local_win)                                                     
-{                                                                                       
-        /* box(local_win, ' ', ' '); : This won't produce the desired                   
-         * result of erasing the window. It will leave it's four corners                
-         * and so an ugly remnant of window.                                            
-         */                                                                             
-        wborder(local_win, ' ', ' ', ' ',' ',' ',' ',' ',' ');                          
-        /* The parameters taken are                                                     
-         * 1. win: the window on which to operate                                       
-         * 2. ls: character to be used for the left side of the window                  
-         * 3. rs: character to be used for the right side of the window                 
-         * 4. ts: character to be used for the top side of the window                   
-         * 5. bs: character to be used for the bottom side of the window                
-         * 6. tl: character to be used for the top left corner of the window            
-         * 7. tr: character to be used for the top right corner of the window           
-         * 8. bl: character to be used for the bottom left corner of the window         
-         * 9. br: character to be used for the bottom right corner of the window        
-         */                                                                             
-        wrefresh(local_win);                                                            
-        delwin(local_win);                                                              
-}                 
+#include <iostream>
+#include <random>
+#include <vector>
+
+using namespace std;
+
+struct Coord {
+    int x, y;
+};
+
+class Map {
+    int width, height;
+    vector<vector<int>> map;
+
+public:
+    Map(int w, int h) : width(w), height(h), map(w, vector<int>(h, 0)) {}
+
+    void generateRandomWall() {
+        random_device rd;
+        mt19937 gen(rd());
+        uniform_int_distribution<int> distX(0, width - 1);
+        uniform_int_distribution<int> distY(0, height - 1);
+        uniform_int_distribution<int> distLength(1, 5); // 벽의 길이 범위
+
+        // 랜덤한 시작 위치 선택
+        int startX = distX(gen);
+        int startY = distY(gen);
+
+        // 랜덤한 방향 선택 (1: 위쪽, 2: 오른쪽, 3: 아래쪽, 4: 왼쪽)
+        int direction = distX(gen) % 4 + 1;
+
+        // 랜덤한 길이 선택
+        int length = distLength(gen);
+
+        // 선택된 방향으로 벽 생성
+        int x = startX;
+        int y = startY;
+        for (int i = 0; i < length; i++) {
+            if (x >= 0 && x < width && y >= 0 && y < height) {
+                map[x][y] = 1;
+            }
+
+            switch (direction) {
+                case 1: // 위쪽
+                    y--;
+                    break;
+                case 2: // 오른쪽
+                    x++;
+                    break;
+                case 3: // 아래쪽
+                    y++;
+                    break;
+                case 4: // 왼쪽
+                    x--;
+                    break;
+            }
+        }
+    }
+
+    void printMap() {
+        for (const auto& row : map) {
+            for (int cell : row) {
+                cout << cell << " ";
+            }
+            cout << endl;
+        }
+    }
+};
+
+int main() {
+    int width = 10;
+    int height = 10;
+
+    Map map(width, height);
+    map.generateRandomWall();
+    map.generateRandomWall();
+    map.generateRandomWall();
+    map.printMap();
+
+    return 0;
+}

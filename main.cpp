@@ -15,7 +15,7 @@ int main(){
         noecho();
         curs_set(0);
         mvprintw(12, 29, "SNAKE GAME");
-        mvprintw(15, 34, "Play : Press\'p\'");
+        mvprintw(15, 34, "Play : Press \'p\'");
         mvprintw(16, 34, "Exit : Press \'e\'");
         while(1){
             ch = getch();

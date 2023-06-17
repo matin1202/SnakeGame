@@ -20,29 +20,29 @@ public:
     int grow = 0;
     int poison = 0;
     int usedGate = 0;
-    
+
     char missionS = ' ';
     char missionG = ' ';
     char missionP = ' ';
     char missionUG = ' ';
-    
+
     bool missionCompleted = false;
-    
+
     Game()
     {
-        map = Map(21, 41);
+        map = Map(21, 41, 2);
         initscr();
         clear();
         noecho();
         cbreak();
         curs_set(0);
         start_color();
-        init_pair(1, COLOR_WHITE, COLOR_WHITE);     // Wall
-        init_pair(2, COLOR_BLACK, COLOR_WHITE);     // Immuned Wall
-        init_pair(3, COLOR_CYAN, COLOR_CYAN);       // Snake Head
-        init_pair(4, COLOR_GREEN, COLOR_GREEN);     // Snake Body
-        init_pair(5, COLOR_BLUE, COLOR_BLUE);       // Growth Item
-        init_pair(6, COLOR_RED, COLOR_RED);         // Poison Item
+        init_pair(1, COLOR_WHITE, COLOR_WHITE);   // Wall
+        init_pair(2, COLOR_BLACK, COLOR_WHITE);   // Immuned Wall
+        init_pair(3, COLOR_CYAN, COLOR_CYAN);     // Snake Head
+        init_pair(4, COLOR_GREEN, COLOR_GREEN);   // Snake Body
+        init_pair(5, COLOR_BLUE, COLOR_BLUE);     // Growth Item
+        init_pair(6, COLOR_RED, COLOR_RED);       // Poison Item
         init_pair(7, COLOR_BLACK, COLOR_MAGENTA); // GATE
         keypad(stdscr, TRUE);
         nodelay(stdscr, TRUE);
@@ -69,19 +69,19 @@ public:
             box(board, 0, 0);
             box(score, 0, 0);
             box(mission, 0, 0);
-            
+
             mvwprintw(score, 1, 1, "*******Score Board*******");
             mvwprintw(score, 3, 1, " score: %d", map.head.body.size() - 3);
             mvwprintw(score, 4, 1, " grow: %d", grow);
             mvwprintw(score, 5, 1, " poison: %d", poison);
             mvwprintw(score, 6, 1, " Used Gate: %d", usedGate);
-            
+
             mvwprintw(mission, 1, 1, "******Mission Board******");
-            mvwprintw(mission, 3, 1, " score: 4 / %d (%c) ", map.head.body.size() -3, missionS);
+            mvwprintw(mission, 3, 1, " score: 4 / %d (%c) ", map.head.body.size() - 3, missionS);
             mvwprintw(mission, 4, 1, " grow: 5 / %d (%c) ", grow, missionG);
             mvwprintw(mission, 5, 1, " poison: 2 / %d (%c) ", poison, missionP);
             mvwprintw(mission, 6, 1, " Used Gate: 1 / %d (%c) ", usedGate, missionUG);
-            
+
             for (auto it = map.iWall.begin(); it != map.iWall.end(); it++)
             {
                 wattron(board, COLOR_PAIR(2));
@@ -147,7 +147,7 @@ public:
                 ptimer = 0;
                 generatePItem();
             }
-            if (gateTimer >= 100 && !(map.gate[0].isActive || map.gate[1].isActive))
+            if (gateTimer >= 80 && !(map.gate[0].isActive || map.gate[1].isActive))
             {
                 gateTimer = 0;
                 generateGate();
@@ -224,6 +224,66 @@ public:
         {
             idx1 = rand() % map.wall.size();
             idx2 = rand() % map.wall.size();
+            if (map.wall[idx1].coord.x == 1 || map.wall[idx1].coord.x == map.size.h || map.wall[idx1].coord.y == 1 || map.wall[idx1].coord.y == map.size.w)
+            {
+                int possible = 4;
+                for (int i = 0; i < 4; i++)
+                {
+                    Coord tmp = map.wall[idx1].coord;
+                    switch (i)
+                    {
+                    case 0:
+                        tmp.x--;
+                        break;
+                    case 1:
+                        tmp.x++;
+                        break;
+                    case 2:
+                        tmp.y--;
+                        break;
+                    case 3:
+                        tmp.y++;
+                        break;
+                    }
+                    for (auto it = map.wall.begin(); it != map.wall.end(); it++)
+                    {
+                        if (tmp == it->coord)
+                            possible--;
+                    }
+                }
+                if (possible <= 1)
+                    continue;
+            }
+            if (map.wall[idx2].coord.x == 1 || map.wall[idx2].coord.x == map.size.h || map.wall[idx2].coord.y == 1 || map.wall[idx2].coord.y == map.size.w)
+            {
+                int possible = 4;
+                for (int i = 0; i < 4; i++)
+                {
+                    Coord tmp = map.wall[idx2].coord;
+                    switch (i)
+                    {
+                    case 0:
+                        tmp.x--;
+                        break;
+                    case 1:
+                        tmp.x++;
+                        break;
+                    case 2:
+                        tmp.y--;
+                        break;
+                    case 3:
+                        tmp.y++;
+                        break;
+                    }
+                    for (auto it = map.wall.begin(); it != map.wall.end(); it++)
+                    {
+                        if (tmp == it->coord)
+                            possible--;
+                    }
+                }
+                if (possible <= 1)
+                    continue;
+            }
             if (idx1 != idx2)
                 break;
         }
@@ -269,18 +329,60 @@ public:
             map.head.body.pop_back();
         }
         map.head.move();
-        for (int i = 0;i<map.gate.size();i++)
+        for (int i = 0; i < map.gate.size(); i++)
         {
             auto it = map.gate.begin() + i;
             if (it->coord == map.head.coord)
             {
                 it->isActive = true;
                 activeTick = map.head.body.size();
-                auto other = (i == 0? map.gate.begin() + 1:map.gate.begin());
-                if(other->possible == 6){
-                    // TODO
+                auto other = (i == 0 ? map.gate.begin() + 1 : map.gate.begin());
+                if (other->possible == 6)
+                {
+                    bool canGo = true;
+                    Coord toGo = other->coord;
+                    switch (map.head.direction)
+                    {
+                    case 1:
+                        toGo.x--;
+                        break;
+                    case 2:
+                        toGo.y--;
+                        break;
+                    case 3:
+                        toGo.y++;
+                        break;
+                    case 4:
+                        toGo.y--;
+                        break;
+                    }
+                    for (auto w = map.wall.begin(); w != map.wall.end(); w++)
+                    {
+                        if(w->coord == toGo){
+                            canGo = false;
+                            break;
+                        }
+                    }
+                    if(!canGo){
+                        switch (map.head.direction)
+                    {
+                    case 1:
+                        map.head.direction = 3;
+                        break;
+                    case 2:
+                        map.head.direction = 1;
+                        break;
+                    case 3:
+                        map.head.direction = 4;
+                        break;
+                    case 4:
+                        map.head.direction = 2;
+                        break;
+                    }
+                    }
                 }
-                else{
+                else
+                {
                     map.head.direction = other->possible;
                 }
                 map.head.coord = other->coord;
@@ -304,7 +406,7 @@ public:
             ptimer = 0;
             map.head.body.pop_back();
         }
-        
+
         // mission
         if ((map.head.body.size() - 3) >= 4)
             missionS = 'v';
@@ -322,7 +424,7 @@ public:
             missionUG = 'v';
         else
             missionUG = ' ';
-        
+
         // missionComplted
         if ((map.head.body.size() - 3) >= 4 && grow >= 5 && poison >= 2 && usedGate >= 1)
         {
