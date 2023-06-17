@@ -241,11 +241,11 @@ public:
         if (grow >= 5)
             missionG = 'v';
         else
-            missionS = ' ';
+            missionG = ' ';
         if (poison >= 2)
             missionP = 'v';
         else
-            missionS = ' ';
+            missionP = ' ';
         if (usedGate >= 1)
             missionUG = 'v';
         else
