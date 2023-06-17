@@ -8,7 +8,6 @@
 
 using namespace std;
 
-
 struct SIZE
 {
     int h, w;
@@ -21,7 +20,7 @@ public:
     SnakeHead head;
     vector<ImmunedWall> iWall;
     vector<Wall> wall;
-    vector<Gate> gate;
+    vector<Gate> gate = vector<Gate>(2);
     GrowthItem gItem;
     PoisonItem pItem;
     Map(int h = 21, int w = 21);
@@ -45,19 +44,19 @@ Map::Map(int h, int w)
                 if (j == 1 || j == w)
                     iWall.push_back(ImmunedWall(i, j));
                 else
-                    wall.push_back(Wall(i, j));
+                    wall.push_back(Wall(i, j, (i == 1 ? 1 : 4)));
             }
             else
             {
                 if (j == 1 || j == w)
-                    wall.push_back(Wall(i, j));
+                    wall.push_back(Wall(i, j, (j == 1 ? 2 : 3)));
             }
         }
     }
-    head = SnakeHead(h/2, w/2);
-    head.body.push_back(SnakeBody(h/2+1, w/2));
-    head.body.push_back(SnakeBody(h/2+2, w/2));
-    head.body.push_back(SnakeBody(h/2+3, w/2));
+    head = SnakeHead(h / 2, w / 2);
+    head.body.push_back(SnakeBody(h / 2 + 1, w / 2));
+    head.body.push_back(SnakeBody(h / 2 + 2, w / 2));
+    head.body.push_back(SnakeBody(h / 2 + 3, w / 2));
 }
 
 Map::Map(const Map &m)

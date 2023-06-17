@@ -8,4 +8,5 @@ using namespace std;
 int main(){
     Game m = Game();
     m.refreshScreen();
+    endwin();
 }

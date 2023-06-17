@@ -42,9 +42,16 @@ public:
 class Wall : public Block
 {
 public:
+    int position;
     Wall() : Block() { identity = 1; }
-    Wall(int x, int y) : Block(x, y) { identity = 1; }
+    Wall(int x, int y, int position = -1) : Block(x, y)
+    {
+        identity = 1;
+        this->position = position;
+    }
     int showIdentity() { return identity; }
+
+    /* Up = 1, Down = 4, Left = 3, Right = 2 */
 };
 
 class ImmunedWall : public Block
@@ -82,8 +89,15 @@ public:
 class Gate : public Block
 {
 public:
+    int possible;
     Gate() : Block() { identity = 2; }
+    Gate(const Wall &wall)
+    {
+        coord = wall.coord;
+        possible = 5 - wall.position;
+    }
     Gate(int x, int y) : Block(x, y) { identity = 2; }
+    bool isActive = false;
     int showIdentity() { return identity; }
 };
 
