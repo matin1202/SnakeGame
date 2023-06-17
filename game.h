@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <time.h>
+#include <time.h>
 
 using namespace std;
 
@@ -177,120 +178,6 @@ public:
         return true;
     }
 
-    void generateRandCoord(int &x, int &y, bool shouldIncludeWall = false)
-    {
-        while (1)
-        {
-            x = rand() % (map.size.h - 1) + 2;
-            y = rand() % (map.size.w - 1) + 2;
-            Coord tmp;
-            tmp.x = x;
-            tmp.y = y;
-            bool same = false;
-            if (!shouldIncludeWall)
-            {
-                for (auto it = map.wall.begin(); it != map.wall.end(); it++)
-                {
-                    if (it->coord == tmp)
-                        same = true;
-                }
-            }
-            for (auto it = map.head.body.begin(); it != map.head.body.end(); it++)
-            {
-                if (it->coord == tmp)
-                    same = true;
-            }
-            for (auto it = map.gate.begin(); it != map.gate.end(); it++)
-            {
-                if (it->coord == tmp)
-                    same = true;
-            }
-            if (map.head.coord == tmp)
-                same = true;
-            if (map.gItem.coord == tmp)
-                same = true;
-            if (map.pItem.coord == tmp)
-                same = true;
-
-            if (!same)
-                break;
-        }
-    }
-
-    void generateGate()
-    {
-        int idx1, idx2;
-        while (1)
-        {
-            idx1 = rand() % map.wall.size();
-            idx2 = rand() % map.wall.size();
-            if (map.wall[idx1].coord.x == 1 || map.wall[idx1].coord.x == map.size.h || map.wall[idx1].coord.y == 1 || map.wall[idx1].coord.y == map.size.w)
-            {
-                int possible = 4;
-                for (int i = 0; i < 4; i++)
-                {
-                    Coord tmp = map.wall[idx1].coord;
-                    switch (i)
-                    {
-                    case 0:
-                        tmp.x--;
-                        break;
-                    case 1:
-                        tmp.x++;
-                        break;
-                    case 2:
-                        tmp.y--;
-                        break;
-                    case 3:
-                        tmp.y++;
-                        break;
-                    }
-                    for (auto it = map.wall.begin(); it != map.wall.end(); it++)
-                    {
-                        if (tmp == it->coord)
-                            possible--;
-                    }
-                }
-                if (possible <= 1)
-                    continue;
-            }
-            if (map.wall[idx2].coord.x == 1 || map.wall[idx2].coord.x == map.size.h || map.wall[idx2].coord.y == 1 || map.wall[idx2].coord.y == map.size.w)
-            {
-                int possible = 4;
-                for (int i = 0; i < 4; i++)
-                {
-                    Coord tmp = map.wall[idx2].coord;
-                    switch (i)
-                    {
-                    case 0:
-                        tmp.x--;
-                        break;
-                    case 1:
-                        tmp.x++;
-                        break;
-                    case 2:
-                        tmp.y--;
-                        break;
-                    case 3:
-                        tmp.y++;
-                        break;
-                    }
-                    for (auto it = map.wall.begin(); it != map.wall.end(); it++)
-                    {
-                        if (tmp == it->coord)
-                            possible--;
-                    }
-                }
-                if (possible <= 1)
-                    continue;
-            }
-            if (idx1 != idx2)
-                break;
-        }
-        map.gate[0] = Gate(map.wall[idx1]);
-        map.gate[1] = Gate(map.wall[idx2]);
-    }
-
     void generateItems()
     {
         int x, y;
@@ -329,67 +216,6 @@ public:
             map.head.body.pop_back();
         }
         map.head.move();
-        for (int i = 0; i < map.gate.size(); i++)
-        {
-            auto it = map.gate.begin() + i;
-            if (it->coord == map.head.coord)
-            {
-                it->isActive = true;
-                activeTick = map.head.body.size();
-                auto other = (i == 0 ? map.gate.begin() + 1 : map.gate.begin());
-                if (other->possible == 6)
-                {
-                    bool canGo = true;
-                    Coord toGo = other->coord;
-                    switch (map.head.direction)
-                    {
-                    case 1:
-                        toGo.x--;
-                        break;
-                    case 2:
-                        toGo.y--;
-                        break;
-                    case 3:
-                        toGo.y++;
-                        break;
-                    case 4:
-                        toGo.y--;
-                        break;
-                    }
-                    for (auto w = map.wall.begin(); w != map.wall.end(); w++)
-                    {
-                        if(w->coord == toGo){
-                            canGo = false;
-                            break;
-                        }
-                    }
-                    if(!canGo){
-                        switch (map.head.direction)
-                    {
-                    case 1:
-                        map.head.direction = 3;
-                        break;
-                    case 2:
-                        map.head.direction = 1;
-                        break;
-                    case 3:
-                        map.head.direction = 4;
-                        break;
-                    case 4:
-                        map.head.direction = 2;
-                        break;
-                    }
-                    }
-                }
-                else
-                {
-                    map.head.direction = other->possible;
-                }
-                map.head.coord = other->coord;
-                map.head.move();
-                usedGate++;
-            }
-        }
 
         if (map.head.coord == map.gItem.coord)
         {
