@@ -98,7 +98,7 @@ C++ 프로그래밍 언어로 ncurses 라이브러리를 사용하여 Snake Game
     - 길이, Growth Item, Poison Item, Gate를 주어진 양 이상 획득 및 통과하기
 
 #### Custom Rule
-  + 각 스테이지에는 랜덤한 위치에 길이 4-10인 2-4개 Map 가운데의 벽이 생성된다.
+  + 각 스테이지에는 랜덤한 위치에 길이 4-10인 2-6개 Map 가운데의 벽이 생성된다.
   + 각 스테이지의 Tick은 50-300ms이다.
   + Time Item을 획득하면 Tick이 일정 시간 동안 1.5배가 된다.
 
